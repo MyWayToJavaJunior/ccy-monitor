@@ -1,20 +1,45 @@
-var app = angular.module('currencyConverter', []);
+(function () {
+    'use strict';
 
-app.controller('currencyConverterController', function($scope, $http) {
+    var module = angular.module('currencyConverter', []);
 
-    $http.get('/rates')
-        .success(function(data, status) {$scope.rates = data; $scope.status = status;})
-        .error(function(error) {$scope.error = error});
+    module.controller('CcyController', CcyController);
 
-    $scope.baseCcy = 'USD';
+    CcyController.$inject = ['$http'];
+    function CcyController($http) {
+        var vm = this;
+        vm.amount = '';
+        vm.error = '';
+        vm.result = '';
+        vm.baseCcy = '';
+        vm.selectedRate = null;
+        vm.rates = [];
+        vm.count = count;
 
-    $scope.count = function() {
-        for (var key in $scope.rates) {
-            var rate = $scope.rates[key];
-            if (rate.ccy == $scope.selectedRate.ccy) {
-                $scope.result = $scope.amount * rate.value;
+        $http.get('/rates')
+            .success(function (data) {
+                vm.rates = data;
+                vm.selectedRate = selectDefaultCcy(data);
+            })
+            .error(function (error) {
+                vm.error = error;
+            });
+
+        function selectDefaultCcy(rates) {
+            var filtered = rates.filter(function (rate) {
+                return rate.ccy === 'USD';
+            });
+            return filtered ? filtered[0] : null;
+        }
+
+        function count() {
+            for (var key in vm.rates) {
+                var rate = vm.rates[key];
+                if (rate.ccy == vm.selectedRate.ccy) {
+                    vm.result = vm.amount * rate.value;
+                }
             }
         }
     }
 
-});
+})();
