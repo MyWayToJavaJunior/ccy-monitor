@@ -28,17 +28,17 @@ public class CcyMonitorApplication {
     public static void main(String[] args) throws URISyntaxException {
         ApplicationContext context = SpringApplication.run(CcyMonitorApplication.class, args);
         SimpleClientHttpRequestFactory clientHttpRequestFactory = new SimpleClientHttpRequestFactory();
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 3128));
+//        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 3128));
         CcyRepository ccyRepository = context.getBean(CcyRepository.class);
-        clientHttpRequestFactory.setProxy(proxy);
+//        clientHttpRequestFactory.setProxy(proxy);
         RestTemplate restTemplate = new RestTemplate(clientHttpRequestFactory);
         String API_KEY = "7aeec31b7c1a469b9abc072b0581545b";
         String API_URI = "https://openexchangerates.org/api/latest.json?app_id={api_key}";
         CcyAPIResponseWrapper apiWrapper = restTemplate.getForObject(API_URI, CcyAPIResponseWrapper.class, API_KEY);
-        apiWrapper.getRates().entrySet().stream().forEach(o -> convertAndSaveCcyEntity(o, ccyRepository));
+        apiWrapper.getRates().entrySet().forEach(o -> convertAndSaveCcyEntity(o, ccyRepository));
         List<CcyEntity> ccyEntities = ccyRepository.findAll();
         System.out.println("----------->>>><<<<----------");
-        ccyEntities.stream().forEach(o -> System.out.print(o.getCcy() + ", "));
+        ccyEntities.forEach(o -> System.out.print(o.getCcy() + ", "));
         System.out.println("----------->>>><<<<----------");
     }
 
